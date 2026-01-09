@@ -1,64 +1,70 @@
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class SeleniumTest {
 
     private WebDriver webDriver;
+    WebDriverWait wait;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         
-        System.setProperty("webdriver.chrome.driver", "./driver/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "./driver/chromedriver.exe");
+
+        //get working directory
+        String workingDir = System.getProperty("user.dir");
 
         // Get file
-        File file = new File("StyledPage.html");
+        File file = new File(workingDir + File.separator + "src/main/StyledPage.html");
         String path = "file://" + file.getAbsolutePath();
 
         
-        EdgeOptions options = new EdgeOptions();
+        // Create a new ChromeDriver instance
+        ChromeOptions options = new ChromeOptions();
         options.addArguments("headless");
-        webDriver = new EdgeDriver(options);
+        webDriver = new ChromeDriver(options);
+        wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
 
         // Open the HTML file
         webDriver.get(path);
     }
 
-    
-
     @Test
-    public void testIdSelector() {
-        WebElement p2 = webDriver.findElement(By.id("p2"));
-        assertEquals("rgba(255, 0, 0, 1)", p2.getCssValue("color"));
-    }
-
-    @Test
-    public void testClassSelector() {
-        List<WebElement> elements = webDriver.findElements(By.className("class2"));
+    public void todo1_h1ElementsShouldBeBlue() {
+        List<WebElement> elements = webDriver.findElements(By.cssSelector("h1"));
         for(WebElement element: elements) {
             assertEquals("rgba(0, 0, 255, 1)", element.getCssValue("color"));
         }
     }
 
     @Test
-    public void testElementSelector() {
-        List<WebElement> elements = webDriver.findElements(By.cssSelector("h2"));
-        for(WebElement element: elements) {
-            assertEquals("rgba(0, 255, 255, 1)", element.getCssValue("color"));
-        }
+    public void todo2_highlightClassElementsShouldHaveYellowBackground() throws IOException {
+        WebElement p2 = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("highlight")));
+        assertEquals("rgba(255, 255, 0, 1)", p2.getCssValue("background-color"));
+    }
+    
+    @Test
+    public void todo3_mainTitleShouldBeUppercase() {
+        WebElement mainTitle = webDriver.findElement(By.id("main-title"));
+        assertEquals("uppercase", mainTitle.getCssValue("text-transform"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         // Close the browser
         webDriver.quit();
